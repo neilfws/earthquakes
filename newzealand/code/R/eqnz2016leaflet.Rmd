@@ -1,0 +1,67 @@
+---
+title: "Easy earthquake mapping using leaflet"
+author: "Neil Saunders, Kent Johnson"
+date: "25/11/2016"
+output: 
+  html_document: 
+    toc: yes
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, cache=TRUE, message=FALSE, warning = FALSE)
+```
+
+## Introduction
+This document was inspired by Neil Saunder's [recent post](https://nsaunders.wordpress.com/2016/11/24/putting-data-on-maps-using-r-easier-than-ever/) mapping New Zealand earthquake data. This document shows how to make an interactive map using the [leaflet](https://rstudio.github.io/leaflet/) package for R.
+
+## Getting earthquake data
+Sources of publicly-available earthquake data include [NZ GeoNet](http://quakesearch.geonet.org.nz/) and the [USGS earthquake site](http://earthquake.usgs.gov/earthquakes/search/). USGS API queries appear to be limited to magnitude 2.5+ (even when smaller magnitudes are specified). So we use the GeoNet website to obtain URLs for data from 2010 - present, then combine into one large data frame.
+
+```{r get-data}
+library(htmltools)
+library(leaflet)
+library(readr)
+
+urls <- c("http://quakesearch.geonet.org.nz/csv?bbox=163.60840,-49.18170,182.98828,-32.28713&startdate=2016-02-01&enddate=2016-11-21",
+"http://quakesearch.geonet.org.nz/csv?bbox=163.60840,-49.18170,182.98828,-32.28713&startdate=2015-01-01&enddate=2016-02-01",
+"http://quakesearch.geonet.org.nz/csv?bbox=163.60840,-49.18170,182.98828,-32.28713&startdate=2014-01-01&enddate=2015-01-01",
+"http://quakesearch.geonet.org.nz/csv?bbox=163.60840,-49.18170,182.98828,-32.28713&startdate=2013-02-01&enddate=2014-01-01",
+"http://quakesearch.geonet.org.nz/csv?bbox=163.60840,-49.18170,182.98828,-32.28713&startdate=2012-01-01&enddate=2013-02-01",
+"http://quakesearch.geonet.org.nz/csv?bbox=163.60840,-49.18170,182.98828,-32.28713&startdate=2011-02-01&enddate=2012-01-01",
+"http://quakesearch.geonet.org.nz/csv?bbox=163.60840,-49.18170,182.98828,-32.28713&startdate=2010-04-01&enddate=2011-02-01",
+"http://quakesearch.geonet.org.nz/csv?bbox=163.60840,-49.18170,182.98828,-32.28713&startdate=2010-01-01&enddate=2010-04-01")
+
+geonet.l <- lapply(urls, read_csv)
+geonet   <- do.call(rbind, geonet.l)
+```
+
+## Mapping earthquakes
+First we need a map of New Zealand. This is fairly straightforward using _leaflet_.
+
+```{r get-map}
+NZ.map = leaflet(width='95%', height=600) %>% addProviderTiles('Stamen.Terrain') %>% 
+  setView(lat=-41.7305615, lng=172.8773913, zoom=6)
+```
+
+### Mapping by magnitude
+To map by magnitude we use `addCircles()`. Circles are sized and colored by magnitude. The popup gives more detail. The full data set contains `r nrow(geonet)` points; this map shows only the earthquakes with magnitude at least 4.
+
+```{r map3}
+geonet_large = subset(geonet, magnitude>=4)
+mag = geonet_large$magnitude
+popup = lapply(1:nrow(geonet_large), function(i) {
+  row = geonet_large[i,]
+  HTML(as.character(p(
+    format(row$origintime, '%Y-%m-%d'), br(),
+    round(row$magnitude, 2)
+  )))
+})
+
+colors = colorNumeric('YlOrRd', mag)
+NZ.map %>% addCircles(data=geonet_large, radius=sqrt(mag)*1000,
+                      color=colors(mag), 
+                      fillOpacity=0.8, weight=0, popup=popup) %>% 
+  addLegend(pal=colors, values=mag)
+```
+
+This shows the recent strong earthquakes in the Canterbury region, including the 2016 Kaikoura earthquake (the red dot north-east of Christchurch).
