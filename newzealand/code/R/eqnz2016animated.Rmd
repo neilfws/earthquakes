@@ -31,7 +31,7 @@ theme_set(theme_bw())
 
 # ignore warnings about frame, cumulative
 # seems to be a bug using DateTime for frame so converting to numeric
-p <- p + geom_point(data = eqnz , aes(x = longitude, y = latitude, color = magnitude, size = magnitude, frame = as.numeric(origintime), cumulative = TRUE), alpha = 0.5) + scale_color_continuous(low = "yellow", high = "red") + scale_size_continuous(guide = FALSE) + labs(x = "longitude", y = "latitude", title = "Kaikoura Earthquake 2016 Aftershocks", subtitle = "Earthquakes in the 24 hours after the main event on November 14")
+p <- p + geom_point(data = eqnz , aes(x = longitude, y = latitude, color = magnitude, size = magnitude, frame = as.numeric(origintime), cumulative = TRUE), alpha = 0.5) + scale_color_continuous(low = "yellow", high = "red") + scale_size_continuous(guide = FALSE) + labs(x = "longitude", y = "latitude", title = "Kaikoura Earthquake 2016 Aftershocks: ", subtitle = "Earthquakes in the 24 hours after the main event on November 14")
 gg_animate(p, ani.width = 800, ani.height = 800, interval = .4, "../../output/nz2016.gif")
 ```
 
