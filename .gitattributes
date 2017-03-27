@@ -1,1 +1,3 @@
 newzealand/output/*.html linguist-documentation
+*.Rmd linguist-language=R
+
