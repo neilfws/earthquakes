@@ -1,0 +1,58 @@
+---
+title: "Animating Earthquake Aftershocks"
+author: "Neil Saunders"
+date: "`r Sys.time()`"
+output: 
+  github_document: 
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, 
+                      warning = FALSE, 
+                      echo = FALSE,
+                      fig.show = "animate")
+
+library(tidyverse)
+library(gganimate)
+library(lubridate)
+library(ggmap)
+```
+
+## Aftershocks following the Kaikoura Earthquake November 14 2016
+The _[ggmap](https://github.com/dkahle/ggmap)_ and _[gganimate](https://github.com/dgrtwo/gganimate)_ packages make this very easy. Install them both from Github as described in their READMEs, using _devtools_.
+
+Without further ado:
+
+
+```{r doplot}
+NZ <- get_stamenmap(bbox = c(163.60840, -49.18170, 180, -32.28713), 
+                    zoom = 6, 
+                    maptype = "toner-lite")
+p <- ggmap(NZ)
+
+eqnz <- read_csv("http://quakesearch.geonet.org.nz/csv?bbox=163.60840,-49.18170,182.98828,-32.28713&startdate=2016-11-13T11:00:00&enddate=2016-11-14T11:00:00")
+
+theme_set(theme_bw())
+
+# ignore warnings about frame, cumulative
+# seems to be a bug using DateTime for frame so converting to numeric
+p <- p + 
+  geom_point(data = eqnz , aes(x = longitude, 
+                               y = latitude, 
+                               color = magnitude, 
+                               size = magnitude, 
+                               frame = as.numeric(origintime), 
+                               cumulative = TRUE), 
+             alpha = 0.5) + 
+    scale_color_continuous(low = "yellow", high = "red") + 
+    scale_size_continuous(guide = FALSE) + 
+    labs(x = "longitude", 
+         y = "latitude", 
+         title = "Kaikoura Earthquake 2016 Aftershocks: ", 
+         subtitle = "Earthquakes in the 24 hours after the main event on November 14")
+
+gganimate(p, ani.width = 800, ani.height = 800, interval = .4, "html/nz2016.gif")
+```
+
+![](html/nz2016.gif)
