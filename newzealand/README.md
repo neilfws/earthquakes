@@ -1,5 +1,5 @@
 # newzealand
-Kaikoura 2016 earthquake. Report analysing energy release published [at RPubs](http://rpubs.com/neilfws/229230).
+Kaikoura 2016 earthquake. [Report analysing energy release](https://github.com/neilfws/earthquakes/blob/master/newzealand/eqnz2016.md).
 
 Aftershock animation:
 
