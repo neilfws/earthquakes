@@ -3,4 +3,4 @@ Kaikoura 2016 earthquake. Report analysing energy release published [at RPubs](h
 
 Aftershock animation:
 
-![](https://github.com/neilfws/earthquakes/blob/master/newzealand/output/nz2016.gif)
+![](https://github.com/neilfws/earthquakes/blob/master/newzealand/html/nz2016.gif)
